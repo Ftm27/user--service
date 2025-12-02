@@ -7,10 +7,11 @@ const {
   deleteUser,
   getSingleUser,
 } = require("../controllers/usercontroller");
+const upload = require("../middleware/upload");
 
 router.get("/", getUsers);
-router.post("/", createUser);
+router.post("/", upload.single("avatar"), createUser);
 router.get("/", getSingleUser);
-router.put("/:id", updateUser);
+router.put("/:id", upload.single("avatar"), updateUser);
 router.delete("/:id", deleteUser);
 module.exports = router;

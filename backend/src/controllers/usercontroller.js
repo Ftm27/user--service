@@ -24,26 +24,39 @@ exports.getSingleUser = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
 exports.createUser = async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
     if (!username || !email || !password) {
-      return res
-        .status(400)
-        .json({ message: "مقادیر username یا email یا password فرستاده نشده" });
+      return res.status(400).json({
+        message: "مقادیر username یا email یا password فرستاده نشده",
+      });
     }
 
-    const newUser = new User({ username, email, password });
+    let avatarPath = null;
+    if (req.file) {
+      avatarPath = `/uploads/${req.file.filename}`;
+    }
+
+    const newUser = new User({
+      username,
+      email,
+      password,
+      avatar: avatarPath,
+    });
+
     await newUser.save();
 
     res
       .status(201)
-      .json({ message: "User created Successfully", user: newUser });
+      .json({ message: "User created successfully", user: newUser });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 exports.updateUser = async (req, res) => {
   try {
@@ -54,6 +67,10 @@ exports.updateUser = async (req, res) => {
     }
 
     const updates = req.body;
+    
+    if (req.file) {
+      updates.avatar = `/uploads/${req.file.filename}`;
+    }
 
     const updatedUser = await User.findByIdAndUpdate(id, updates, {
       new: true,
